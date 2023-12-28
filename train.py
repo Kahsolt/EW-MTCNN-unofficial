@@ -118,6 +118,7 @@ def train(args):
   ]
   optimizer = SGD(param_groups, momentum=0.9, weight_decay=5e-4)
 
+  acc_train, kl_train = [], []
   step = 0
   for epoch in range(EPOCHS):
     ''' Train '''
@@ -138,8 +139,9 @@ def train(args):
       if step % 10 == 0:
         print(f'>> [step {step}] loss: {loss.item()}')
 
+
     ''' Eval '''
-    tot, acc, kl = 0, 0, 0.0
+    tot, ok, kl = 0, 0, 0.0
     with torch.inference_mode():
       model.eval()
       for X, Y, Z in train_loader:
@@ -147,11 +149,26 @@ def train(args):
 
         output = model(X)   # [B, NC]
 
+        ok += (torch.argmax(output, dim=-1) == Y).sum().item()
+        kl_raw = F.kl_div(F.log_softmax(output, dim=-1), Z, reduction='none')
+        kl += kl_raw.mean(dim=-1).sum().item()
         tot += len(Y)
-        acc += (output.argmax(dim=-1) == Y).sum().item()
-        kl += F.kl_div(F.log_softmax(output, dim=-1), Z, reduction='sum')
   
-      print(f'>> [Epoch: {epoch + 1}/{EPOCHS}] cls_acc: {acc / tot:.3%}, sdl_kl: {kl / tot:.7f}')
+      print(f'>> [Epoch: {epoch + 1}/{EPOCHS}] cls_acc: {ok / tot:.3%}, sdl_kl: {kl / tot:.7f}')
+
+    acc_train.append(ok / tot)
+    kl_train.append(kl / tot)
+
+  if 'plot':
+    from matplotlib.axes import Axes
+    plt.clf()
+    plt.plot(acc_train, 'r', label='train acc.')
+    plt.legend()
+    ax: Axes = plt.twinx()
+    ax.plot(kl_train, 'b', label='train kl_div')
+    ax.legend()
+    plt.tight_layout()
+    plt.savefig(IMG_PATH / f'model-EW={args.EW}.png', dpi=600)
 
   torch.save(model.state_dict(), LOG_PATH / f'model-EW={args.EW}.pth')
 

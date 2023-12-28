@@ -9,6 +9,10 @@ DATA_EMOTION6_PATH = DATA_PATH / 'Emotion6'
 
 RESIZE = (224, 224)
 
+# torchvision pretrained using ImageNet stats 
+TV_MEAN = [0.485, 0.456, 0.406]
+TV_STD  = [0.229, 0.224, 0.225]
+
 
 class Emotion6Dataset(Dataset):
 
@@ -19,11 +23,11 @@ class Emotion6Dataset(Dataset):
     T.RandomResizedCrop(RESIZE, interpolation=T.InterpolationMode.BILINEAR),
     T.RandomHorizontalFlip(),
     T.ToTensor(),
-    T.Normalize(mean=[0.4165, 0.3834, 0.3488], std=[0.2936, 0.2805, 0.2850])
+    T.Normalize(mean=TV_MEAN, std=TV_STD),
   ])
   transform_test = T.Compose([
     T.ToTensor(),
-    T.Normalize(mean=[0.4165, 0.3834, 0.3488], std=[0.2936, 0.2805, 0.2850]),
+    T.Normalize(mean=TV_MEAN, std=TV_STD),
   ])
 
   def __init__(self, split:str='train', root:Path=DATA_EMOTION6_PATH):
@@ -67,7 +71,8 @@ class Emotion6Dataset(Dataset):
 
 if __name__ == '__main__':
   dataset = Emotion6Dataset()
-  for img, label in iter(dataset):
-    print('x:', img, 'y:', label)
-    print(np.sum(label))
+  for img, lbl_cls, lbl_sdl in iter(dataset):
+    print('img:', img)
+    print('lbl_cls:', lbl_cls)
+    print('lbl_sdl:', lbl_sdl, 'sum:', np.sum(lbl_sdl))
     break
