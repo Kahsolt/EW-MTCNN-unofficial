@@ -82,6 +82,7 @@ def get_model(n_class:int, EW:str='freeze') -> VGG:
 
   use_EW = EW != 'none'
   freeze_EW = EW == 'freeze'
+  requires_grad = not freeze_EW
 
   # 预训练的VGG模型
   model = M.vgg19_bn(weights=VGG19_BN_Weights.IMAGENET1K_V1, dropout=0.5)
@@ -93,8 +94,8 @@ def get_model(n_class:int, EW:str='freeze') -> VGG:
   if use_EW:
     layer: Linear = model.classifier[-1]
     new_layer = Linear(in_features=n_class, out_features=n_class, bias=False)
-    new_layer.weight.data = nn.Parameter(make_EW_layer_weight(SIGMA), requires_grad=(not freeze_EW))
-    new_layer.requires_grad_(False)
+    new_layer.weight.data = nn.Parameter(make_EW_layer_weight(SIGMA), requires_grad=requires_grad)
+    new_layer.requires_grad_(requires_grad)
     model.classifier[-1] = new_layer
   else:   # no EW_layer
     model.classifier[-1] = nn.Identity()
