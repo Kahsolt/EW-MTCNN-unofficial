@@ -22,11 +22,15 @@
 
 ⚠ inplace eval on trainset :(
 
-| `-EW` | cls_acc ↑ | sdl_kl ↓ | comment |
+| `-I` | `-M` | cls_acc ↑ | sdl_kl ↓ | comment |
 | :-: | :-: | :-: | :-: |
-| freeze   | 49.394% | 0.0901860 | 冻结情感轮先验层权重 |
-| unfreeze | 50.404% | 0.0912241 | 允许情感轮先验层参与微调 |
-| none     | **74.495%** | **0.0455484** | 不使用情感轮先验层 |
+| none     | -        | **74.747%** | **0.0456907** | 不使用情感轮先验层 |
+| original | freeze   | 50.051% | 0.0912462 | 冻结情感轮先验层权重 |
+| original | unfreeze | 48.939% | 0.0741477 | 允许情感轮先验层参与微调 |
+| eye      | unfreeze | 48.485% | 0.0774974 | 对角阵初始化 |
+| rand     | unfreeze | 47.778% | 0.0732538 | 随机初始化 |
+| corr     | freeze   | 19.141% | 0.1249517 | |
+| corr     | unfreeze | 27.677% | 0.1199178 | |
 
 
 ### references

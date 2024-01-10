@@ -21,7 +21,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 BASE_PATH = Path(__file__).parent
 LOG_PATH = BASE_PATH / 'log' ; LOG_PATH.mkdir(exist_ok=True)
-IMG_PATH = BASE_PATH / 'img'
+IMG_PATH = BASE_PATH / 'img' ; IMG_PATH.mkdir(exist_ok=True)
 
 npimg_u8 = NDArray[np.uint8]
 npimg_f32 = NDArray[np.float32]
@@ -36,9 +36,6 @@ def seed_everything(seed:int=42):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.enabled = True
     torch.backends.cudnn.benchmark = True
-
-def param_cnt(model:Module) -> int:
-  return sum([p.numel() for p in model.parameters()])
 
 
 def load_pil(fp:Path) -> PILImage:
